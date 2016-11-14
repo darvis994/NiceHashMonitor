@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import com.google.gson.*;
@@ -18,10 +20,11 @@ public class NiceHashMonitor  {
     private static String BALANCE_URL = "https://www.nicehash.com/api?method=stats.provider&addr=";
     private static String WORKERS_STATUS_URL = "https://www.nicehash.com/api?method=stats.provider.workers&addr=";
     private static String ALGORITHM_ID = "&algo=24";
+    private static Double CURRENT_PRICE_BTC;
 
     public static void main(String[] args)  {
-
-        System.out.println("USD/BTC: " + PoloniexMonitor.getLastPricePoloniex(PoloniexMonitor.USD_BTC_PAIR));
+        CURRENT_PRICE_BTC = PoloniexMonitor.getLastPricePoloniex(PoloniexMonitor.USD_BTC_PAIR);
+        System.out.println("USD/BTC: " + CURRENT_PRICE_BTC);
         System.out.println("ZEC/BTC: " + PoloniexMonitor.getLastPricePoloniex(PoloniexMonitor.BTC_ZEC_PAIR));
         System.out.println();
         for (String wallet : args) {
@@ -112,10 +115,12 @@ public class NiceHashMonitor  {
    private static void printFarmStatus(String wallet) {
        String stringJsonStatus = getRequest(STATUS_URL + wallet);
        String stringJsonBalance = getRequest(BALANCE_URL + wallet);
-       String stringJsonWorkes1 = getRequest(WORKERS_STATUS_URL + wallet + ALGORITHM_ID);
+       String stringJsonWorkers = getRequest(WORKERS_STATUS_URL + wallet + ALGORITHM_ID);
+       Double unpaidBalanceBTC = Double.parseDouble(getCurrentBalance(stringJsonBalance));
        System.out.println("Current speed: " + getCurrentSpeed(stringJsonStatus) + " Sol/s");
-       System.out.println("Unpaid balance: " + getCurrentBalance(stringJsonBalance) + " BTC");
-       HashMap <String,String> map = getWorkersStats(stringJsonWorkes1);
+       System.out.println("Unpaid balance: " + unpaidBalanceBTC + " BTC (" + new BigDecimal(unpaidBalanceBTC
+               * CURRENT_PRICE_BTC).setScale(2, RoundingMode.UP).doubleValue() + " USD)");
+       HashMap <String,String> map = getWorkersStats(stringJsonWorkers);
        System.out.println("Quantity workers: " + map.size());
        for (Map.Entry <String,String> mapEntry : map.entrySet()) {
            System.out.println(mapEntry.getKey() + "  - " + mapEntry.getValue() + " Sol/s");
