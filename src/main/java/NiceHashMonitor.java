@@ -62,13 +62,16 @@ public class NiceHashMonitor  {
      * @return Total speed for BTC wallet.
      * */
     private static Double getCurrentSpeed(String stringJson) {
-        JsonElement jElement = new JsonParser().parse(stringJson);
-        JsonObject jObject = jElement.getAsJsonObject();
-        jObject = jObject.getAsJsonObject("result").getAsJsonArray("current").get(0).getAsJsonObject();
-        JsonArray jData = jObject.getAsJsonArray("data");
-        JsonObject speedjObject = jData.get(0).getAsJsonObject();
-        String currentSpeed = speedjObject.get("a").getAsString();
-        return Double.parseDouble(currentSpeed);
+        try {
+            JsonElement jElement = new JsonParser().parse(stringJson);
+            JsonObject jObject = jElement.getAsJsonObject();
+            jObject = jObject.getAsJsonObject("result").getAsJsonArray("current").get(0).getAsJsonObject();
+            JsonArray jData = jObject.getAsJsonArray("data");
+            JsonObject speedjObject = jData.get(0).getAsJsonObject();
+            return Double.parseDouble(speedjObject.get("a").getAsString());
+        } catch (NullPointerException e) {
+            return 0.0;
+        }
     }
 
     /**
