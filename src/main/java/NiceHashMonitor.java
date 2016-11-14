@@ -21,7 +21,10 @@ public class NiceHashMonitor  {
 
     public static void main(String[] args)  {
 
-         for (String wallet : args) {
+        System.out.println("USD/BTC: " + PoloniexMonitor.getLastPricePoloniex(PoloniexMonitor.USD_BTC_PAIR));
+        System.out.println("ZEC/BTC: " + PoloniexMonitor.getLastPricePoloniex(PoloniexMonitor.BTC_ZEC_PAIR));
+        System.out.println();
+        for (String wallet : args) {
             System.out.println("##################################################");
             printFarmStatus(wallet);
         }
@@ -30,7 +33,7 @@ public class NiceHashMonitor  {
     /**
      * @return Full JSon string from URL.
      * */
-    private static String getRequest(String URL) {
+    static String getRequest(String URL) {
         String output = null;
         try {
             DefaultHttpClient httpClient = new DefaultHttpClient();
