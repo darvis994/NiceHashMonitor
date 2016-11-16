@@ -8,6 +8,7 @@ import java.util.Map;
 import com.google.gson.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -39,7 +40,7 @@ public class NiceHashMonitor  {
     static String getRequest(String URL) {
         String output = null;
         try {
-            DefaultHttpClient httpClient = new DefaultHttpClient();
+            HttpClient httpClient = new DefaultHttpClient();
             HttpGet getRequest = new HttpGet(URL);
             getRequest.addHeader("accept", "application/json");
             HttpResponse response = httpClient.execute(getRequest);
