@@ -22,15 +22,22 @@ public class NiceHashMonitor  {
     private static String WORKERS_STATUS_URL = "https://www.nicehash.com/api?method=stats.provider.workers&addr=";
     private static String ALGORITHM_ID = "&algo=24";
     private static Double CURRENT_PRICE_BTC;
+    private static final String OS = System.getProperty("os.name");
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_GREEN = "\033[32;1;2m";
+    public static final String ANSI_CYAN = "\033[36;1;2m";
+    public static final String ANSI_YELLOW = "\033[33;1;2m";
+    private static StringBuilder sb = new StringBuilder();
 
-    public static void main(String[] args)  {
-        CURRENT_PRICE_BTC = PoloniexMonitor.getLastPricePoloniex(PoloniexMonitor.USD_BTC_PAIR);
-        System.out.println("USD/BTC: " + CURRENT_PRICE_BTC);
-        System.out.println("ZEC/BTC: " + PoloniexMonitor.getLastPricePoloniex(PoloniexMonitor.BTC_ZEC_PAIR));
-        System.out.println();
-        for (String wallet : args) {
-            System.out.println("##################################################");
-            printFarmStatus(wallet);
+    public static void main(String[] args)   {
+        System.out.print("Starting..");
+        while (true) {
+            try {
+                printFarmStatus(args);
+                Thread.sleep(10000);
+            } catch (NullPointerException | InterruptedException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -111,24 +118,49 @@ public class NiceHashMonitor  {
    }
 
     /**
-     * @param wallet - BTC wallet from nicehash.com
+     * Method print full console output for one screen update.
+     * @param wallets - BTC wallet from nicehash.com
      * */
-   private static void printFarmStatus(String wallet) {
-       String stringJsonStatus = getRequest(STATUS_URL + wallet);
-       String stringJsonBalance = getRequest(BALANCE_URL + wallet);
-       String stringJsonWorkers = getRequest(WORKERS_STATUS_URL + wallet + ALGORITHM_ID);
-       Double unpaidBalanceBTC = Double.parseDouble(getCurrentBalance(stringJsonBalance));
-       System.out.println("Current speed: " + getCurrentSpeed(stringJsonStatus) + " Sol/s");
-       System.out.println("Unpaid balance: " + unpaidBalanceBTC + " BTC (" + new BigDecimal(unpaidBalanceBTC
-               * CURRENT_PRICE_BTC).setScale(2, RoundingMode.UP).doubleValue() + " USD)");
-       HashMap <String,String> map = getWorkersStats(stringJsonWorkers);
-       System.out.println("Quantity workers: " + map.size());
-       for (Map.Entry <String,String> mapEntry : map.entrySet()) {
-           System.out.println(mapEntry.getKey() + "  - " + mapEntry.getValue() + " Sol/s");
+   private static void printFarmStatus(String[] wallets) {
+       CURRENT_PRICE_BTC = PoloniexMonitor.getLastPricePoloniex(PoloniexMonitor.USD_BTC_PAIR);
+       sb.append("USD/BTC: " + ANSI_CYAN + CURRENT_PRICE_BTC + ANSI_RESET + "\n");
+       sb.append("ZEC/BTC: " + ANSI_CYAN + PoloniexMonitor.getLastPricePoloniex(PoloniexMonitor.BTC_ZEC_PAIR)
+               + ANSI_RESET + "\n");
+       for (String wallet : wallets) {
+           sb.append("\n##################################################\n");
+           sb.append("\n");
+           String stringJsonStatus = getRequest(STATUS_URL + wallet);
+           String stringJsonBalance = getRequest(BALANCE_URL + wallet);
+           String stringJsonWorkers = getRequest(WORKERS_STATUS_URL + wallet + ALGORITHM_ID);
+           Double unpaidBalanceBTC = Double.parseDouble(getCurrentBalance(stringJsonBalance));
+           sb.append("Current speed: " + ANSI_GREEN + getCurrentSpeed(stringJsonStatus) + ANSI_RESET + " Sol/s \n");
+           sb.append("Unpaid balance: " + unpaidBalanceBTC + " BTC (" + new BigDecimal(unpaidBalanceBTC
+                   * CURRENT_PRICE_BTC).setScale(2, RoundingMode.UP).doubleValue() + " USD) \n");
+           HashMap <String,String> map = getWorkersStats(stringJsonWorkers);
+           sb.append("Quantity workers: " + map.size() + "\n");
+           for (Map.Entry <String,String> mapEntry : map.entrySet()) {
+               sb.append(mapEntry.getKey() + "  - " + mapEntry.getValue() + " Sol/s \n");
+           }
        }
+       clearConsole();
+       System.out.println(sb.toString());
+       sb.setLength(0);
    }
-}
 
+    /**
+     * Method clear console output. Used for update screen.
+     * */
+    static void clearConsole() {
+        try {
+            if (OS.contains("Windows"))
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            else
+                Runtime.getRuntime().exec("clear");
+        } catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
+    }
+}
 
 
 // Build jar: mvn clean compile assembly:single
