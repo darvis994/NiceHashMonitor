@@ -23,13 +23,14 @@ public class NiceHashMonitor  {
     private static String ALGORITHM_ID = "&algo=24";
     private static Double CURRENT_PRICE_BTC;
     private static final String OS = System.getProperty("os.name");
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_GREEN = "\033[32;1;2m";
-    public static final String ANSI_CYAN = "\033[36;1;2m";
-    public static final String ANSI_YELLOW = "\033[33;1;2m";
+    public static String ANSI_RESET = "\u001B[0m";
+    public static String ANSI_GREEN = "\033[32;1;2m";
+    public static String ANSI_CYAN = "\033[36;1;2m";
+    public static String ANSI_YELLOW = "\033[33;1;2m";
     private static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args)   {
+        checkColorAvailable();
         System.out.print("Starting..");
         while (true) {
             try {
@@ -147,6 +148,14 @@ public class NiceHashMonitor  {
        sb.setLength(0);
    }
 
+    static void checkColorAvailable(){
+        if(!OS.equals("Windows 10")) {
+            ANSI_RESET = "";
+            ANSI_GREEN = "";
+            ANSI_CYAN = "";
+            ANSI_YELLOW = "";
+        }
+    }
     /**
      * Method clear console output. Used for update screen.
      * */
