@@ -51,7 +51,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>NiceHashMonitor</mainClass>
+                            <mainClass>monitor.NiceHashMonitor</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
