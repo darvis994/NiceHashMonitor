@@ -46,10 +46,11 @@ public class CurrentFarmStatus implements Runnable {
 
     @Override
     public void run() {
-        TelegramBot telegramBot = new TelegramBot(this);
-        Thread threadTelegram = new Thread(telegramBot);
-        threadTelegram.start();
-        while (true) {
+
+        if(MonitorConfig.TELEGRAM_BOT_ENABLE)
+            new Thread(new TelegramBot(this)).start();
+
+        while (true) {t
             try {
                 Thread.currentThread().sleep(MonitorConfig.DELAY_UPDATE_SECONDS * 1000 + 1500);
                 updateStatusTextMessage();
