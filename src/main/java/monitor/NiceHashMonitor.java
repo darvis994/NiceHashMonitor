@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
+
+import config.MonitorConfig;
 import com.google.gson.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -43,14 +45,14 @@ public class NiceHashMonitor  {
     public static void main(String[] args) {
         checkColorAvailable();
         System.out.print("Starting..");
-        NiceHashMonitor niceHashMonitor = new NiceHashMonitor(args);
+        NiceHashMonitor niceHashMonitor = new NiceHashMonitor(MonitorConfig.BTC_WALLETS);
         Thread currentFarmStatusThread = new Thread(niceHashMonitor.currentFarmStatus);
         currentFarmStatusThread.start();
 
         while (true) {
             try {
-                niceHashMonitor.printFarmStatus(args);
-                Thread.currentThread().sleep(10000);
+                niceHashMonitor.printFarmStatus(MonitorConfig.BTC_WALLETS);
+                Thread.currentThread().sleep(MonitorConfig.DELAY_UPDATE_SECONDS * 1000);
             } catch (NullPointerException | InterruptedException e) {
                 System.out.println(e.getMessage());
             }
@@ -112,8 +114,7 @@ public class NiceHashMonitor  {
         JsonElement jelement = new JsonParser().parse(stringJson);
         JsonObject jobject = jelement.getAsJsonObject();
         jobject = jobject.getAsJsonObject("result").getAsJsonArray("stats").get(0).getAsJsonObject();
-        String balance = jobject.get("balance").getAsString();
-        return balance;
+        return jobject.get("balance").getAsString();
     }
 
 
@@ -147,7 +148,7 @@ public class NiceHashMonitor  {
                 + ANSI_RESET + "\n");
         for (String wallet : wallets) {
             sb.append("\n##################################################\n");
-            sb.append("\n");
+            sb.append(ANSI_CYAN + wallet.substring(0,5) + "******" + wallet.substring(28) + ANSI_RESET + "\n");
             String stringJsonStatus = getRequest(STATUS_URL + wallet);
             String stringJsonBalance = getRequest(BALANCE_URL + wallet);
             String stringJsonWorkers = getRequest(WORKERS_STATUS_URL + wallet + ALGORITHM_ID);

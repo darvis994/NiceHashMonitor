@@ -1,5 +1,6 @@
 package telegrambot;
 
+import config.MonitorConfig;
 import monitor.CurrentFarmStatus;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -27,13 +28,10 @@ public class TelegramBot extends TelegramLongPollingBot implements Runnable{
             if(message.hasText()){
                 String responseMessage = null;
                 String inputMessage = message.getText();
-                if(inputMessage.equalsIgnoreCase("getspeed")) {
-                    System.out.println(message.getText());
+                if(inputMessage.contains("getspeed")) {
                     responseMessage = currentFarmStatus.getStatusTextMessage().toString();
                 } else if(inputMessage.contains("go"))
                     responseMessage = "Gogogogogo go go go go go fast go!";
-                else
-                    responseMessage = "Unknown command: " + message.getText();
                 // response to same chat room where the message came.
                 sendMessageTo(String.valueOf(message.getChatId()), responseMessage);
             }
@@ -53,18 +51,17 @@ public class TelegramBot extends TelegramLongPollingBot implements Runnable{
 
     @Override
     public String getBotUsername() {
-        return BotConfig.TELEGRAM_BOT_USERNAME;
+        return MonitorConfig.TELEGRAM_BOT_USERNAME;
     }
 
     @Override
     public String getBotToken() {
-        return BotConfig.TELEGRAM_BOT_TOKEN;
+        return MonitorConfig.TELEGRAM_BOT_TOKEN;
     }
 
 
     @Override
     public void run() {
-
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
         try {
             telegramBotsApi.registerBot(this);
