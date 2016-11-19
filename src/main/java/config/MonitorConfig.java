@@ -14,6 +14,8 @@ public class MonitorConfig {
     public static String PRIVATE_CHAT_ID;
     public static int DELAY_UPDATE_SECONDS;
     public static String[]BTC_WALLETS;
+    public static double ALARM_HASHRATE;
+
 
     static {
         Properties properties = new Properties();
@@ -29,12 +31,11 @@ public class MonitorConfig {
         PRIVATE_CHAT_ID = properties.getProperty("PRIVATE_CHAT_ID").trim();
         DELAY_UPDATE_SECONDS = Integer.parseInt(properties.getProperty("DELAY_UPDATE_SECONDS").trim());
         BTC_WALLETS = properties.getProperty("BTC_WALLETS").split(",");
-
+        ALARM_HASHRATE =  Double.parseDouble(properties.getProperty("ALARM_HASHRATE"));
 
         for (int i = 0; i < BTC_WALLETS.length; i++) {
             BTC_WALLETS[i] = BTC_WALLETS[i].trim();
         }
-
     }
 
 

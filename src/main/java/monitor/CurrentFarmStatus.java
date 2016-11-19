@@ -11,13 +11,13 @@ import java.util.Map;
  */
 public class CurrentFarmStatus implements Runnable {
     private Map <String,Double> mapTotalWalletHashrate;
-    private StringBuilder currenStatusMessage = new StringBuilder();
+    private StringBuilder currentStatusMessage = new StringBuilder();
+    private TelegramBot telegramBot;
 
 
     public CurrentFarmStatus(String[]BTCwallets) {
         initFarm(BTCwallets);
     }
-
 
     private void initFarm(String[] BTCwallets) {
         mapTotalWalletHashrate = new HashMap<>();
@@ -27,13 +27,13 @@ public class CurrentFarmStatus implements Runnable {
     }
 
     public StringBuilder getStatusTextMessage() {
-        return currenStatusMessage;
+        return currentStatusMessage;
     }
 
     public void updateStatusTextMessage() {
-        currenStatusMessage.setLength(0);
+        currentStatusMessage.setLength(0);
         for (Map.Entry<String,Double> entry : mapTotalWalletHashrate.entrySet()) {
-            currenStatusMessage.append(entry.getKey().substring(0,5)
+            currentStatusMessage.append(entry.getKey().substring(0,5)
                     + "******" + entry.getKey().substring(28) + " : " + entry.getValue() + " Sol/s \n");
         }
     }
@@ -43,17 +43,29 @@ public class CurrentFarmStatus implements Runnable {
         mapTotalWalletHashrate.put(btcWallet, hashrate);
     }
 
+    public void checkAlarmHashrate() {
+        for (Map.Entry<String, Double> hashrates : mapTotalWalletHashrate.entrySet()) {
+            if(hashrates.getValue() < MonitorConfig.ALARM_HASHRATE) {
+                String message = "\uD83D\uDEA7 Alarm! Total hashrate of " + hashrates.getKey().substring(0,5) + "******" +
+                        hashrates.getKey().substring(28) + " equal " + hashrates.getValue() + " Sol/s \uD83D\uDEA7";
+                telegramBot.sendMessageTo(MonitorConfig.PRIVATE_CHAT_ID, message);
+            }
+        }
+    }
 
     @Override
     public void run() {
 
         if(MonitorConfig.TELEGRAM_BOT_ENABLE)
-            new Thread(new TelegramBot(this)).start();
+            telegramBot = new TelegramBot(this);
+            new Thread(telegramBot).start();
 
-        while (true) {t
+        while (true) {
             try {
                 Thread.currentThread().sleep(MonitorConfig.DELAY_UPDATE_SECONDS * 1000 + 1500);
                 updateStatusTextMessage();
+                if(MonitorConfig.TELEGRAM_BOT_ENABLE)
+                    checkAlarmHashrate();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

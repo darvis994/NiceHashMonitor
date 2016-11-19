@@ -12,7 +12,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 /**
  * Created by Darvis on 15.11.2016.
  */
-public class TelegramBot extends TelegramLongPollingBot implements Runnable{
+public class TelegramBot extends TelegramLongPollingBot implements Runnable {
     private CurrentFarmStatus currentFarmStatus;
 
     public TelegramBot(CurrentFarmStatus currentFarmStatus) {
@@ -25,13 +25,16 @@ public class TelegramBot extends TelegramLongPollingBot implements Runnable{
         if(update.hasMessage()) {
             Message message = update.getMessage();
             //check if the message has text. it could also contain for example a location ( message.hasLocation() )
-            if(message.hasText()){
+            if(message.hasText()) {
                 String responseMessage = null;
                 String inputMessage = message.getText();
                 if(inputMessage.contains("getspeed")) {
                     responseMessage = currentFarmStatus.getStatusTextMessage().toString();
+                } else if (inputMessage.contains("getalarmspeed")) {
+                    responseMessage = "Alarm hashrate = " + String.valueOf(MonitorConfig.ALARM_HASHRATE) + " Sol/s";
                 } else if(inputMessage.contains("go"))
                     responseMessage = "Gogogogogo go go go go go fast go!";
+                else return;
                 // response to same chat room where the message came.
                 sendMessageTo(String.valueOf(message.getChatId()), responseMessage);
             }
