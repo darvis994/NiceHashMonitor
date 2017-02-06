@@ -24,7 +24,7 @@ public class NiceHashMonitor  {
     private static String STATUS_URL = "https://www.nicehash.com/api?method=stats.provider.ex&addr=";
     private static String BALANCE_URL = "https://www.nicehash.com/api?method=stats.provider&addr=";
     private static String WORKERS_STATUS_URL = "https://www.nicehash.com/api?method=stats.provider.workers&addr=";
-    private static String ALGORITHM_ID = "&algo=24";
+
     private static Double CURRENT_PRICE_BTC;
     private static final String OS = System.getProperty("os.name");
     public static String ANSI_RESET = "\u001B[0m";
@@ -151,7 +151,7 @@ public class NiceHashMonitor  {
             sb.append(ANSI_CYAN + wallet.substring(0,5) + "******" + wallet.substring(28) + ANSI_RESET + "\n");
             String stringJsonStatus = getRequest(STATUS_URL + wallet);
             String stringJsonBalance = getRequest(BALANCE_URL + wallet);
-            String stringJsonWorkers = getRequest(WORKERS_STATUS_URL + wallet + ALGORITHM_ID);
+            String stringJsonWorkers = getRequest(WORKERS_STATUS_URL + wallet + MonitorConfig.ALGORITHM_ID);
             Double unpaidBalanceBTC = Double.parseDouble(getCurrentBalance(stringJsonBalance));
             sb.append("Current speed: " + ANSI_GREEN + getCurrentSpeed(stringJsonStatus, wallet) + ANSI_RESET + " Sol/s \n");
             sb.append("Unpaid balance: " + unpaidBalanceBTC + " BTC (" + new BigDecimal(unpaidBalanceBTC
